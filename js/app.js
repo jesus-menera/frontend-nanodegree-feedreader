@@ -118,7 +118,9 @@ $(function() {
         var item = $(this);
 
         $('body').addClass('menu-hidden');
-        loadFeed(item.data('id'));
+        loadFeed(item.data('id'), function() {
+            console.log("loaded success");
+        });
         return false;
     });
 

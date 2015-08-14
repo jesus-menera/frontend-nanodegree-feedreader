@@ -31,12 +31,24 @@ $(function() {
          * in the allFeeds object and ensures it has a URL defined
          * and that the URL is not empty.
          */
+         it('have a url attribute, and it is not empty', function() {
+            for(var feed in allFeeds) {
+                expect(allFeeds[feed].url).toBeDefined();
+                expect(allFeeds[feed].url).not.toBe('');
+            }
+         });
 
 
         /* TODO: Write a test that loops through each feed
          * in the allFeeds object and ensures it has a name defined
          * and that the name is not empty.
          */
+        it('have a name attribute, and it is not empty', function() {
+            for(var feed in allFeeds) {
+                expect(allFeeds[feed].name).toBeDefined();
+                expect(allFeeds[feed].name).not.toBe('');
+            }
+        });
     });
 
 
@@ -53,20 +65,82 @@ $(function() {
           * should have two expectations: does the menu display when
           * clicked and does it hide when clicked again.
           */
+    describe('The menu', function() {
+
+        beforeAll(function(done) {
+            spyOn(window,'loadFeed').and.callThrough();
+            setTimeout(function() {
+                done();
+            }, 1);
+        });
+
+        it('should be hidden by default', function() {
+            expect($('body').hasClass('menu-hidden')).toBe(true);
+            expect(window.loadFeed).toHaveBeenCalled();
+            expect(window.loadFeed.calls.count()).toBe(1);
+        });
+
+        it('shoould toggle feed list visibility when icon clicked', function() {
+            expect($('body').hasClass('menu-hidden')).toBe(true);
+            $('a.menu-icon-link').trigger('click');
+            expect($('body').hasClass('menu-hidden')).toBe(false);
+            $('a.menu-icon-link').trigger('click');
+            expect($('body').hasClass('menu-hidden')).toBe(true);
+        });
+    });
 
     /* TODO: Write a new test suite named "Initial Entries" */
+    describe('Initial Entries', function() {
+        beforeAll(function(done) {
+            setTimeout(function() {
+            // do setup for spec here
+                window.loadFeed(0, function() {
+                    done();
+                });
+            // then call done() in beforeEach() to start asynchronous test
+            }, 1);
+        });
 
-        /* TODO: Write a test that ensures when the loadFeed
+         /* TODO: Write a test that ensures when the loadFeed
          * function is called and completes its work, there is at least
          * a single .entry element within the .feed container.
          * Remember, loadFeed() is asynchronous so this test wil require
          * the use of Jasmine's beforeEach and asynchronous done() function.
          */
+        it('should contain at least one .entry-link within .feed container', function(done) {
+            var l = $('.feed').find('a.entry-link').length;
+            expect(l).toBeGreaterThan(0);
+            done();
+        });
 
-    /* TODO: Write a new test suite named "New Feed Selection"
+    });
+    /* TODO: Write a new test suite named "New Feed Selection"*/
+    describe("New Feed Selection", function() {
+        var prevFeed;
+        var presentFeed;
+
+        beforeAll(function(done) {
+            setTimeout(function() {
+            // do setup for spec here
+                window.loadFeed(0, function() {
+                    prevFeed = $('.header-title').html();
+                    done();
+                });
+            // then call done() in beforeEach() to start asynchronous test
+            }, 1);
+        });
 
         /* TODO: Write a test that ensures when a new feed is loaded
          * by the loadFeed function that the content actually changes.
          * Remember, loadFeed() is asynchronous.
          */
+        it('should change when loadFeed is called', function(done) {
+            window.loadFeed(1, function() {
+                presentFeed = $('.header-title').html();
+            });
+            expect(presentFeed).not.toMatch(prevFeed);
+            done();
+        });
+    });
+
 }());
