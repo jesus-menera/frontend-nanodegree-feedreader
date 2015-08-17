@@ -1,3 +1,4 @@
+
 /* app.js
  *
  * This is our RSS feed reader application. It uses the Google
@@ -5,23 +6,20 @@
  * use of. It also uses the Handlebars templating library and
  * jQuery.
  */
-
 // The names and URLs to all of the feeds we'd like available.
-var allFeeds = [
-    {
-        name: 'Udacity Blog',
-        url: 'http://blog.udacity.com/feeds/posts/default?alt=rss'
-    }, {
-        name: 'CSS Tricks',
-        url: 'http://css-tricks.com/feed'
-    }, {
-        name: 'HTML5 Rocks',
-        url: 'http://feeds.feedburner.com/html5rocks'
-    }, {
-        name: 'Linear Digressions',
-        url: 'http://feeds.feedburner.com/udacity-linear-digressions'
-    }
-];
+var allFeeds = [{
+    name: 'Udacity Blog',
+    url: 'http://blog.udacity.com/feeds/posts/default?alt=rss'
+}, {
+    name: 'CSS Tricks',
+    url: 'http://css-tricks.com/feed'
+}, {
+    name: 'HTML5 Rocks',
+    url: 'http://feeds.feedburner.com/html5rocks'
+}, {
+    name: 'Linear Digressions',
+    url: 'http://feeds.feedburner.com/udacity-linear-digressions'
+}];
 
 /* This function starts up our application. The Google Feed
  * Reader API is loaded asynchonously and will then call this
@@ -61,8 +59,8 @@ function loadFeed(id, cb) {
                 entriesLen = entries.length,
                 entryTemplate = Handlebars.compile($('.tpl-entry').html());
 
-            title.html(feedName);   // Set the header text
-            container.empty();      // Empty out all previous entries
+            title.html(feedName); // Set the header text
+            container.empty(); // Empty out all previous entries
 
             /* Loop through the entries we just loaded via the Google
              * Feed Reader API. We'll then parse that entry against the
@@ -118,9 +116,7 @@ $(function() {
         var item = $(this);
 
         $('body').addClass('menu-hidden');
-        loadFeed(item.data('id'), function() {
-            console.log("loaded success");
-        });
+        loadFeed(item.data('id'));
         return false;
     });
 
