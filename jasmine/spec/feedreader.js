@@ -198,7 +198,7 @@ $(function() {
                 }
 
                 var len = shortest.length;
-                for(var i = 0; i < len; i++) {
+                for (var i = 0; i < len; i++) {
                     expect(shortest[i].linkTitle).not.toEqual(longest[i].linkTitle);
                     expect(shortest[i].href).not.toEqual(longest[i].href);
                 }
