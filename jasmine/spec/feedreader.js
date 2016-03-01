@@ -1,3 +1,5 @@
+'use strict';
+
 /* feedreader.js
  *
  * This is the spec file that Jasmine will read and contains
@@ -114,40 +116,26 @@ $(function() {
 
     /* DONE: Write a new test suite named "New Feed Selection"*/
     describe("New Feed Selection", function() {
-
         var originalTimeout;
-        beforeEach(function(done) {
-            originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-            jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
 
-            setTimeout(function() {
-                // do setup for spec here
-                window.loadFeed(0, function() {
-                    done(); //begin test when loadFeed finishes.
-                });
-                // then call done() in beforeEach() to start asynchronous test
-            }, 1);
-        });
-
-        beforeAll(function(done) {
+        beforeAll(function() {
             var self = this;
-
-            spyOn(window,'loadFeed');
+            spyOn(window, 'loadFeed').and.callThrough();
 
             /**
-            * Function uses jquery functionality to access page dom and extract
-            * entries from article elements from .feed class element.
-            *
-            * @return      an array, containing objects(linkTitle, href) for each feed entry.
-            */
+             * @description Function uses jquery functionality to access page dom and extract
+             *              entries from article elements from .feed class element.
+             *
+             * @returns {Object[]}      an array, containing objects(linkTitle, href) for each feed entry.
+             **/
             this.extractFeedEntries = function() {
 
                 /** PSEUDOCODE: entry info extraction from feed html structure
-                **  0   .feed
-                **  1.      .entry-link[] - href
-                **              article
-                **  2.              h2 = entry title
-                **/
+                 **  0   .feed
+                 **  1.      .entry-link[] - href
+                 **              article
+                 **  2.              h2 = entry title
+                 **/
                 var entries = [];
                 $('.feed').children().toArray().forEach(function(entryLink) {
                     var feedEntryInfo = {};
@@ -158,38 +146,38 @@ $(function() {
 
                     entries.push(feedEntryInfo);
                 });
+                return entries;
             };
 
-            this.prevFeed = {};
-            this.presentFeed = {};
-
-            /*
-
-                    this.prevFeed.title = $('.header-title').html();
-                    this.prevFeed.links = this.extractFeedEntries();
-            */
+            self.prevFeed = {};
+            self.presentFeed = {};
         });
 
-        afterEach(function() {
-            jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+        beforeEach(function(done) {
+            var self = this;
+            window.loadFeed(0, function() {
+                this.prevFeed.title = $('.header-title').html();
+                this.prevFeed.links = this.extractFeedEntries();
+                done();
+            }.bind(self));
+        });
+
+        afterAll(function() {
+            this.prevFeed = null;
+            this.presentFeed = null;
         });
 
         /* DONE: Write a test that ensures when a new feed is loaded
          * by the loadFeed function that the content actually changes.
          * Remember, loadFeed() is asynchronous.
          */
-        it('should change when loadFeed is called', function() {
+        it('should change when loadFeed is called', function(done) {
             var self = this;
-            expect(window.loadFeed).toHaveBeenCalled();
-
-
-/*
+            expect(window.loadFeed).toHaveBeenCalledWith(0, jasmine.any(Function));
 
             window.loadFeed(1, function() {
-                //this.presentFeed.title = $('.header-title').html();
-                //this.presentFeed.links = this.extractFeedEntries();
-                console.log("hi");
-                done();
+                this.presentFeed.title = $('.header-title').html();
+                this.presentFeed.links = this.extractFeedEntries();
 
                 expect(this.presentFeed.title).not.toMatch(this.prevFeed.title);
 
@@ -210,13 +198,14 @@ $(function() {
                 }
 
                 var len = shortest.length;
-                for (var i = 0; i < len; i++) {
-                    expect($(shortest[i]).html().trim()).not.toMatch($(longest[i]).html().trim());
+                for(var i = 0; i < len; i++) {
+                    expect(shortest[i].linkTitle).not.toEqual(longest[i].linkTitle);
+                    expect(shortest[i].href).not.toEqual(longest[i].href);
                 }
 
+                done();
 
             }.bind(self));
-            */
         });
     });
 }());
