@@ -1,4 +1,3 @@
-
 /* feedreader.js
  *
  * This is the spec file that Jasmine will read and contains
@@ -58,6 +57,8 @@ $(function() {
         beforeAll(function(done) {
             spyOn(window, 'loadFeed').and.callThrough();
             setTimeout(function() {
+                expect(window.loadFeed).toHaveBeenCalled();
+                expect(window.loadFeed.calls.count()).toBe(1); //initial loadFeed call, all should be at default state.
                 done();
             }, 1);
         });
@@ -69,8 +70,6 @@ $(function() {
          */
         it('should be hidden by default', function() {
             expect($('body').hasClass('menu-hidden')).toBe(true);
-            expect(window.loadFeed).toHaveBeenCalled();
-            expect(window.loadFeed.calls.count()).toBe(1); //initial loadFeed call, all should be at default state.
         });
 
         /* DONE: Write a test that ensures the menu changes
@@ -79,10 +78,11 @@ $(function() {
          * clicked and does it hide when clicked again.
          */
         it('shoould toggle feed list visibility when icon clicked', function() {
+            var menuLink = $('a.menu-icon-link');
             expect($('body').hasClass('menu-hidden')).toBe(true);
-            $('a.menu-icon-link').trigger('click');
+            menuLink.trigger('click');
             expect($('body').hasClass('menu-hidden')).toBe(false);
-            $('a.menu-icon-link').trigger('click');
+            menuLink.trigger('click');
             expect($('body').hasClass('menu-hidden')).toBe(true);
         });
     });
@@ -114,50 +114,99 @@ $(function() {
 
     /* DONE: Write a new test suite named "New Feed Selection"*/
     describe("New Feed Selection", function() {
-        var prevFeed = {};
-        var presentFeed = {};
 
-        beforeAll(function(done) {
+        var originalTimeout;
+        beforeEach(function(done) {
+            originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+            jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
+
             setTimeout(function() {
                 // do setup for spec here
                 window.loadFeed(0, function() {
-                    prevFeed.title = $('.header-title').html();
-                    prevFeed.links = $('.feed').children().toArray();
-                    done();
+                    done(); //begin test when loadFeed finishes.
                 });
                 // then call done() in beforeEach() to start asynchronous test
             }, 1);
         });
 
-        afterAll(function() {
-            loadFeed(0);
+        beforeAll(function(done) {
+            var self = this;
+
+            spyOn(window,'loadFeed');
+
+            /**
+            * Function uses jquery functionality to access page dom and extract
+            * entries from article elements from .feed class element.
+            *
+            * @return      an array, containing objects(linkTitle, href) for each feed entry.
+            */
+            this.extractFeedEntries = function() {
+
+                /** PSEUDOCODE: entry info extraction from feed html structure
+                **  0   .feed
+                **  1.      .entry-link[] - href
+                **              article
+                **  2.              h2 = entry title
+                **/
+                var entries = [];
+                $('.feed').children().toArray().forEach(function(entryLink) {
+                    var feedEntryInfo = {};
+                    feedEntryInfo.href = $(entryLink).attr('href');
+
+                    var entryHtml = $(entryLink).find('article.entry').html();
+                    feedEntryInfo.linkTitle = $('h2', '<div>' + entryHtml + '</div>').text().trim();
+
+                    entries.push(feedEntryInfo);
+                });
+            };
+
+            this.prevFeed = {};
+            this.presentFeed = {};
+
+            /*
+
+                    this.prevFeed.title = $('.header-title').html();
+                    this.prevFeed.links = this.extractFeedEntries();
+            */
+        });
+
+        afterEach(function() {
+            jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
         });
 
         /* DONE: Write a test that ensures when a new feed is loaded
          * by the loadFeed function that the content actually changes.
          * Remember, loadFeed() is asynchronous.
          */
-        it('should change when loadFeed is called', function(done) {
-            window.loadFeed(1, function() {
-                presentFeed.title = $('.header-title').html();
-                presentFeed.links = $('.feed').children().toArray();
+        it('should change when loadFeed is called', function() {
+            var self = this;
+            expect(window.loadFeed).toHaveBeenCalled();
 
-                expect(presentFeed.title).not.toMatch(prevFeed.title);
+
+/*
+
+            window.loadFeed(1, function() {
+                //this.presentFeed.title = $('.header-title').html();
+                //this.presentFeed.links = this.extractFeedEntries();
+                console.log("hi");
+                done();
+
+                expect(this.presentFeed.title).not.toMatch(this.prevFeed.title);
 
                 var longest;
                 var shortest;
 
-                if (prevFeed.links.length !== presentFeed.links.length) {
-                    if (prevFeed.links.length > presentFeed.links.length) {
-                        longest = prevFeed.links;
-                        shortest = presentFeed.links;
+                if (this.prevFeed.links.length !== this.presentFeed.links.length) {
+                    if (this.prevFeed.links.length > this.presentFeed.links.length) {
+                        longest = this.prevFeed.links;
+                        shortest = this.presentFeed.links;
                     } else {
-                        longest = presentFeed.links;
-                        shortest = prevFeed.links;
+                        longest = this.presentFeed.links;
+                        shortest = this.prevFeed.links;
                     }
                 } else {
-                    shortest = presentFeed.links;
-                    longest = prevFeed.links;
+                    shortest = this.presentFeed.links;
+                    longest = this.prevFeed.links;
                 }
 
                 var len = shortest.length;
@@ -165,8 +214,9 @@ $(function() {
                     expect($(shortest[i]).html().trim()).not.toMatch($(longest[i]).html().trim());
                 }
 
-                done();
-            });
+
+            }.bind(self));
+            */
         });
     });
 }());
