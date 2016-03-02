@@ -92,13 +92,9 @@ $(function() {
     /* DONE: Write a new test suite named "Initial Entries" */
     describe('Initial Entries', function() {
         beforeAll(function(done) {
-            setTimeout(function() {
-                // do setup for spec here
-                window.loadFeed(0, function() {
-                    done(); //begin test when loadFeed finishes.
-                });
-                // then call done() in beforeEach() to start asynchronous test
-            }, 1);
+            window.loadFeed(0, function() {
+                done();
+            });
         });
 
         /* DONE: Write a test that ensures when the loadFeed
@@ -116,17 +112,16 @@ $(function() {
 
     /* DONE: Write a new test suite named "New Feed Selection"*/
     describe("New Feed Selection", function() {
-        var originalTimeout;
 
         beforeAll(function() {
             var self = this;
             spyOn(window, 'loadFeed').and.callThrough();
 
             /**
-             * @description Function uses jquery functionality to access page dom and extract
-             *              entries from article elements from .feed class element.
+             * @description         Function uses jquery functionality to access page dom and extract
+             *                      entries from article elements from .feed class element.
              *
-             * @returns {Object[]}      an array, containing objects(linkTitle, href) for each feed entry.
+             * @returns {Object[]}  an array, containing objects(linkTitle, href) for each feed entry.
              **/
             this.extractFeedEntries = function() {
 
@@ -162,9 +157,13 @@ $(function() {
             }.bind(self));
         });
 
-        afterAll(function() {
+        afterAll(function(done) {
             this.prevFeed = null;
             this.presentFeed = null;
+
+            window.loadFeed(0, function() {
+                done();
+            });
         });
 
         /* DONE: Write a test that ensures when a new feed is loaded
